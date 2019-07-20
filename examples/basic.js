@@ -1,4 +1,4 @@
-import {UndirectedGraph} from 'graphology';
+import { UndirectedGraph } from 'graphology';
 import erdosRenyi from 'graphology-generators/random/erdos-renyi';
 import randomLayout from 'graphology-layout/random';
 import chroma from 'chroma-js';
@@ -7,7 +7,7 @@ import WebGLRenderer from '../src/renderers/webgl';
 
 const container = document.getElementById('container');
 
-const graph = erdosRenyi(UndirectedGraph, {order: 100, probability: 0.2});
+const graph = erdosRenyi(UndirectedGraph, { order: 100, probability: 0.2 });
 randomLayout.assign(graph);
 
 graph.nodes().forEach(node => {

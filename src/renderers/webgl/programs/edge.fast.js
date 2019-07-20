@@ -6,12 +6,12 @@
  * won't render thickness correctly on some GPUs and has some quirks.
  */
 import Program from './program';
-import {floatColor} from '../utils';
+import { floatColor } from '../utils';
 import vertexShaderSource from '../shaders/edge.fast.vert.glsl';
 import fragmentShaderSource from '../shaders/edge.fast.frag.glsl';
 
-const POINTS = 2,
-      ATTRIBUTES = 3;
+const POINTS = 2;
+const ATTRIBUTES = 3;
 
 export default class EdgeFastProgram extends Program {
   constructor(gl) {
@@ -37,14 +37,16 @@ export default class EdgeFastProgram extends Program {
     gl.enableVertexAttribArray(this.positionLocation);
     gl.enableVertexAttribArray(this.colorLocation);
 
-    gl.vertexAttribPointer(this.positionLocation,
+    gl.vertexAttribPointer(
+      this.positionLocation,
       2,
       gl.FLOAT,
       false,
       ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
       0
     );
-    gl.vertexAttribPointer(this.colorLocation,
+    gl.vertexAttribPointer(
+      this.colorLocation,
       1,
       gl.FLOAT,
       false,
@@ -58,19 +60,17 @@ export default class EdgeFastProgram extends Program {
   }
 
   process(sourceData, targetData, data, offset) {
-
-    const array = this.array;
+    const { array } = this;
 
     if (sourceData.hidden || targetData.hidden || data.hidden) {
-      for (let l = i + POINTS * ATTRIBUTES; i < l; i++)
-        array[i] = 0;
+      for (let l = i + POINTS * ATTRIBUTES; i < l; i++) array[i] = 0;
     }
 
-    const x1 = sourceData.x,
-          y1 = sourceData.y,
-          x2 = targetData.x,
-          y2 = targetData.y,
-          color = floatColor(data.color);
+    const x1 = sourceData.x;
+    const y1 = sourceData.y;
+    const x2 = targetData.x;
+    const y2 = targetData.y;
+    const color = floatColor(data.color);
 
     let i = POINTS * ATTRIBUTES * offset;
 
@@ -86,16 +86,16 @@ export default class EdgeFastProgram extends Program {
   }
 
   bufferData() {
-    const gl = this.gl;
+    const { gl } = this;
 
     // Vertices data
     gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.DYNAMIC_DRAW);
   }
 
   render(params) {
-    const gl = this.gl;
+    const { gl } = this;
 
-    const program = this.program;
+    const { program } = this;
     gl.useProgram(program);
 
     // Binding uniforms
@@ -104,10 +104,6 @@ export default class EdgeFastProgram extends Program {
     gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
 
     // Drawing:
-    gl.drawArrays(
-      gl.LINES,
-      0,
-      this.array.length / ATTRIBUTES
-    );
+    gl.drawArrays(gl.LINES, 0, this.array.length / ATTRIBUTES);
   }
 }

@@ -8,7 +8,7 @@
  * determine which elements are currently in the scope of the camera so that
  * we don't waste time rendering things the user cannot see anyway.
  */
-import extend from '@yomguithereal/helpers/extend';
+import { extend } from './utils';
 
 // TODO: should not ask the quadtree when the camera has the whole graph in
 // sight.
@@ -37,18 +37,18 @@ import extend from '@yomguithereal/helpers/extend';
  *   - BOTTOM_LEFT:  4i + 3b
  *   - BOTTOM_RIGHT: 4i + 4b
  */
-const BLOCKS = 4,
-      MAX_LEVEL = 5;
+const BLOCKS = 4;
+const MAX_LEVEL = 5;
 
-const X_OFFSET = 0,
-      Y_OFFSET = 1,
-      WIDTH_OFFSET = 2,
-      HEIGHT_OFFSET = 3;
+const X_OFFSET = 0;
+const Y_OFFSET = 1;
+const WIDTH_OFFSET = 2;
+const HEIGHT_OFFSET = 3;
 
-const TOP_LEFT = 1,
-      TOP_RIGHT = 2,
-      BOTTOM_LEFT = 3,
-      BOTTOM_RIGHT = 4;
+const TOP_LEFT = 1;
+const TOP_RIGHT = 2;
+const BOTTOM_LEFT = 3;
+const BOTTOM_RIGHT = 4;
 
 /**
  * Geometry helpers.
@@ -68,32 +68,20 @@ function isAxisAligned(x1, y1, x2, y2) {
 }
 
 function squareCollidesWithQuad(x1, y1, w, qx, qy, qw, qh) {
-  return (
-    x1 < qx + qw &&
-    x1 + w > qx &&
-    y1 < qy + qh &&
-    y1 + w > qy
-  );
+  return x1 < qx + qw && x1 + w > qx && y1 < qy + qh && y1 + w > qy;
 }
 
 function rectangleCollidesWithQuad(x1, y1, w, h, qx, qy, qw, qh) {
-  return (
-    x1 < qx + qw &&
-    x1 + w > qx &&
-    y1 < qy + qh &&
-    y1 + h > qy
-  );
+  return x1 < qx + qw && x1 + w > qx && y1 < qy + qh && y1 + h > qy;
 }
 
 function pointIsInQuad(x, y, qx, qy, qw, qh) {
-  const xmp = qx + qw / 2,
-        ymp = qy + qh / 2,
-        top = y < ymp,
-        left = x < xmp;
+  const xmp = qx + qw / 2;
+  const ymp = qy + qh / 2;
+  const top = y < ymp;
+  const left = x < xmp;
 
-  return top ?
-    (left ? TOP_LEFT : TOP_RIGHT) :
-    (left ? BOTTOM_LEFT : BOTTOM_RIGHT);
+  return top ? (left ? TOP_LEFT : TOP_RIGHT) : left ? BOTTOM_LEFT : BOTTOM_RIGHT;
 }
 
 /**
@@ -101,25 +89,24 @@ function pointIsInQuad(x, y, qx, qy, qw, qh) {
  * cannot mess with them.
  */
 function buildQuadrants(maxLevel, data) {
-
   // [block, level]
   const stack = [0, 0];
 
   while (stack.length) {
-    const level = stack.pop(),
-          block = stack.pop();
+    const level = stack.pop();
+    const block = stack.pop();
 
-    const topLeftBlock = 4 * block + BLOCKS,
-          topRightBlock = 4 * block + 2 * BLOCKS,
-          bottomLeftBlock = 4 * block + 3 * BLOCKS,
-          bottomRightBlock = 4 * block + 4 * BLOCKS;
+    const topLeftBlock = 4 * block + BLOCKS;
+    const topRightBlock = 4 * block + 2 * BLOCKS;
+    const bottomLeftBlock = 4 * block + 3 * BLOCKS;
+    const bottomRightBlock = 4 * block + 4 * BLOCKS;
 
-    const x = data[block + X_OFFSET],
-          y = data[block + Y_OFFSET],
-          width = data[block + WIDTH_OFFSET],
-          height = data[block + HEIGHT_OFFSET],
-          hw = width / 2,
-          hh = height / 2;
+    const x = data[block + X_OFFSET];
+    const y = data[block + Y_OFFSET];
+    const width = data[block + WIDTH_OFFSET];
+    const height = data[block + HEIGHT_OFFSET];
+    const hw = width / 2;
+    const hh = height / 2;
 
     data[topLeftBlock + X_OFFSET] = x;
     data[topLeftBlock + Y_OFFSET] = y;
@@ -151,15 +138,14 @@ function buildQuadrants(maxLevel, data) {
 }
 
 function insertNode(maxLevel, data, containers, key, x, y, size) {
-  const x1 = x - size,
-        y1 = y - size,
-        w = size * 2;
+  const x1 = x - size;
+  const y1 = y - size;
+  const w = size * 2;
 
-  let level = 0,
-      block = 0;
+  let level = 0;
+  let block = 0;
 
   while (true) {
-
     // If we reached max level
     if (level >= maxLevel) {
       containers[block] = containers[block] || [];
@@ -167,10 +153,10 @@ function insertNode(maxLevel, data, containers, key, x, y, size) {
       return;
     }
 
-    const topLeftBlock = 4 * block + BLOCKS,
-          topRightBlock = 4 * block + 2 * BLOCKS,
-          bottomLeftBlock = 4 * block + 3 * BLOCKS,
-          bottomRightBlock = 4 * block + 4 * BLOCKS;
+    const topLeftBlock = 4 * block + BLOCKS;
+    const topRightBlock = 4 * block + 2 * BLOCKS;
+    const bottomLeftBlock = 4 * block + 3 * BLOCKS;
+    const bottomRightBlock = 4 * block + 4 * BLOCKS;
 
     const collidingWithTopLeft = squareCollidesWithQuad(
       x1,
@@ -212,25 +198,27 @@ function insertNode(maxLevel, data, containers, key, x, y, size) {
       data[bottomRightBlock + HEIGHT_OFFSET]
     );
 
-    const collisions = (
+    const collisions =
       collidingWithTopLeft +
       collidingWithTopRight +
       collidingWithBottomLeft +
-      collidingWithBottomRight
-    );
+      collidingWithBottomRight;
 
     // If we don't have at least a collision, there is an issue
     if (collisions === 0)
-      throw new Error(`sigma/quadtree.insertNode: no collision (level: ${level}, key: ${key}, x: ${x}, y: ${y}, size: ${size}).`);
+      throw new Error(
+        `sigma/quadtree.insertNode: no collision (level: ${level}, key: ${key}, x: ${x}, y: ${y}, size: ${size}).`
+      );
 
     // If we have 3 collisions, we have a geometry problem obviously
     if (collisions === 3)
-      throw new Error(`sigma/quadtree.insertNode: 3 impossible collisions (level: ${level}, key: ${key}, x: ${x}, y: ${y}, size: ${size}).`);
+      throw new Error(
+        `sigma/quadtree.insertNode: 3 impossible collisions (level: ${level}, key: ${key}, x: ${x}, y: ${y}, size: ${size}).`
+      );
 
     // If we have more that one collision, we stop here and store the node
     // in the relevant containers
     if (collisions > 1) {
-
       // NOTE: this is a nice way to optimize for hover, but not for frustum
       // since it requires to uniq the collected nodes
       // if (collisions < 4) {
@@ -264,28 +252,22 @@ function insertNode(maxLevel, data, containers, key, x, y, size) {
       containers[block].push(key);
 
       return;
-    }
-    else {
+    } else {
       level++;
     }
 
     // Else we recurse into the correct quads
-    if (collidingWithTopLeft)
-      block = topLeftBlock;
+    if (collidingWithTopLeft) block = topLeftBlock;
 
-    if (collidingWithTopRight)
-      block = topRightBlock;
+    if (collidingWithTopRight) block = topRightBlock;
 
-    if (collidingWithBottomLeft)
-      block = bottomLeftBlock;
+    if (collidingWithBottomLeft) block = bottomLeftBlock;
 
-    if (collidingWithBottomRight)
-      block = bottomRightBlock;
+    if (collidingWithBottomRight) block = bottomRightBlock;
   }
 }
 
 function getNodesInAxisAlignedRectangleArea(maxLevel, data, containers, x1, y1, w, h) {
-
   // [block, level]
   const stack = [0, 0];
 
@@ -294,23 +276,21 @@ function getNodesInAxisAlignedRectangleArea(maxLevel, data, containers, x1, y1, 
   let container;
 
   while (stack.length) {
-    const level = stack.pop(),
-          block = stack.pop();
+    const level = stack.pop();
+    const block = stack.pop();
 
     // Collecting nodes
     container = containers[block];
 
-    if (container)
-      extend(collectedNodes, container);
+    if (container) extend(collectedNodes, container);
 
     // If we reached max level
-    if (level >= maxLevel)
-      continue;
+    if (level >= maxLevel) continue;
 
-    const topLeftBlock = 4 * block + BLOCKS,
-          topRightBlock = 4 * block + 2 * BLOCKS,
-          bottomLeftBlock = 4 * block + 3 * BLOCKS,
-          bottomRightBlock = 4 * block + 4 * BLOCKS;
+    const topLeftBlock = 4 * block + BLOCKS;
+    const topRightBlock = 4 * block + 2 * BLOCKS;
+    const bottomLeftBlock = 4 * block + 3 * BLOCKS;
+    const bottomRightBlock = 4 * block + 4 * BLOCKS;
 
     const collidingWithTopLeft = rectangleCollidesWithQuad(
       x1,
@@ -356,17 +336,13 @@ function getNodesInAxisAlignedRectangleArea(maxLevel, data, containers, x1, y1, 
       data[bottomRightBlock + HEIGHT_OFFSET]
     );
 
-    if (collidingWithTopLeft)
-      stack.push(topLeftBlock, level + 1);
+    if (collidingWithTopLeft) stack.push(topLeftBlock, level + 1);
 
-    if (collidingWithTopRight)
-      stack.push(topRightBlock, level + 1);
+    if (collidingWithTopRight) stack.push(topRightBlock, level + 1);
 
-    if (collidingWithBottomLeft)
-      stack.push(bottomLeftBlock, level + 1);
+    if (collidingWithBottomLeft) stack.push(bottomLeftBlock, level + 1);
 
-    if (collidingWithBottomRight)
-      stack.push(bottomRightBlock, level + 1);
+    if (collidingWithBottomRight) stack.push(bottomRightBlock, level + 1);
   }
 
   return collectedNodes;
@@ -390,8 +366,7 @@ export default class QuadTree {
     this.cache = null;
     this.lastRectangle = null;
 
-    if (params.boundaries)
-      this.resize(params.boundaries);
+    if (params.boundaries) this.resize(params.boundaries);
     else
       this.resize({
         x: 0,
@@ -400,20 +375,11 @@ export default class QuadTree {
         height: 1
       });
 
-    if (typeof params.filter === 'function')
-      this.nodeFilter = params.filter;
+    if (typeof params.filter === 'function') this.nodeFilter = params.filter;
   }
 
   add(key, x, y, size) {
-    insertNode(
-      MAX_LEVEL,
-      this.data,
-      this.containers,
-      key,
-      x,
-      y,
-      size
-    );
+    insertNode(MAX_LEVEL, this.data, this.containers, key, x, y, size);
 
     return this;
   }
@@ -439,12 +405,11 @@ export default class QuadTree {
   point(x, y) {
     const nodes = [];
 
-    let block = 0,
-        level = 0;
+    let block = 0;
+    let level = 0;
 
     do {
-      if (this.containers[block])
-        nodes.push.apply(nodes, this.containers[block]);
+      if (this.containers[block]) nodes.push(...this.containers[block]);
 
       const quad = pointIsInQuad(
         x,

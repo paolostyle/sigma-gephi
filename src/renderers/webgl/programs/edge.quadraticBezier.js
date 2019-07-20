@@ -5,12 +5,12 @@
  * TODO
  */
 import Program from './program';
-import {floatColor} from '../utils';
+import { floatColor } from '../utils';
 import vertexShaderSource from '../shaders/edge.quadraticBezier.vert.glsl';
 import fragmentShaderSource from '../shaders/edge.quadraticBezier.frag.glsl';
 
-const POINTS = 3,
-      ATTRIBUTES = 5;
+const POINTS = 3;
+const ATTRIBUTES = 5;
 
 export default class EdgeQuadraticBezierProgram extends Program {
   constructor(gl) {
@@ -42,7 +42,8 @@ export default class EdgeQuadraticBezierProgram extends Program {
     gl.enableVertexAttribArray(this.colorLocation);
     gl.enableVertexAttribArray(this.coordLocation);
 
-    gl.vertexAttribPointer(this.positionLocation,
+    gl.vertexAttribPointer(
+      this.positionLocation,
       2,
       gl.FLOAT,
       false,
@@ -56,14 +57,16 @@ export default class EdgeQuadraticBezierProgram extends Program {
     //   ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
     //   8
     // );
-    gl.vertexAttribPointer(this.colorLocation,
+    gl.vertexAttribPointer(
+      this.colorLocation,
       4,
       gl.UNSIGNED_BYTE,
       true,
       ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
       8
     );
-    gl.vertexAttribPointer(this.coordLocation,
+    gl.vertexAttribPointer(
+      this.coordLocation,
       2,
       gl.FLOAT,
       false,
@@ -77,21 +80,19 @@ export default class EdgeQuadraticBezierProgram extends Program {
   }
 
   process(sourceData, targetData, data, offset) {
-
     if (sourceData.hidden || targetData.hidden || data.hidden) {
-      for (let l = i + POINTS * ATTRIBUTES; i < l; i++)
-        this.array[i] = 0;
+      for (let l = i + POINTS * ATTRIBUTES; i < l; i++) this.array[i] = 0;
     }
 
-    const x1 = sourceData.x,
-          y1 = sourceData.y,
-          x2 = targetData.x,
-          y2 = targetData.y,
-          color = floatColor(data.color);
+    const x1 = sourceData.x;
+    const y1 = sourceData.y;
+    const x2 = targetData.x;
+    const y2 = targetData.y;
+    const color = floatColor(data.color);
 
     let i = POINTS * ATTRIBUTES * offset;
 
-    const array = this.array;
+    const { array } = this;
 
     // Control point
     array[i++] = (x1 + x2) / 2 + (y2 - y1) / 4;
@@ -120,34 +121,27 @@ export default class EdgeQuadraticBezierProgram extends Program {
   }
 
   bufferData() {
-    const gl = this.gl;
+    const { gl } = this;
 
     // Vertices data
     gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.DYNAMIC_DRAW);
   }
 
   render(params) {
-    const gl = this.gl;
+    const { gl } = this;
 
-    const program = this.program;
+    const { program } = this;
     gl.useProgram(program);
 
     // Binding uniforms
     gl.uniform2f(this.resolutionLocation, params.width, params.height);
-    gl.uniform1f(
-      this.ratioLocation,
-      params.ratio / Math.pow(params.ratio, params.edgesPowRatio)
-    );
+    gl.uniform1f(this.ratioLocation, params.ratio / Math.pow(params.ratio, params.edgesPowRatio));
 
     gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
 
     gl.uniform1f(this.scaleLocation, params.ratio);
 
     // Drawing:
-    gl.drawArrays(
-      gl.TRIANGLES,
-      0,
-      this.array.length / ATTRIBUTES
-    );
+    gl.drawArrays(gl.TRIANGLES, 0, this.array.length / ATTRIBUTES);
   }
 }

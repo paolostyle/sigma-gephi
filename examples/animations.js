@@ -1,9 +1,9 @@
-import {UndirectedGraph} from 'graphology';
-import WebGLRenderer from '../src/renderers/webgl';
+import { UndirectedGraph } from 'graphology';
 import circularLayout from 'graphology-layout/circular';
-import {animateNodes} from '../src/animate.js';
-import {scaleLinear} from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import extent from 'simple-statistics/src/extent';
+import animateNodes from '../src/animate';
+import WebGLRenderer from '../src/renderers/webgl';
 import miserables from './resources/les-miserables.json';
 
 const nodeSizeExtent = extent(miserables.nodes.map(n => n.size));
@@ -32,7 +32,7 @@ miserables.nodes.forEach((node, i) => {
 });
 
 miserables.edges.forEach(edge => {
-  graph.addEdge(+edge.source, +edge.target, {color: '#ccc'});
+  graph.addEdge(+edge.source, +edge.target, { color: '#ccc' });
 });
 
 const container = document.getElementById('container');
@@ -55,7 +55,7 @@ let state = 0;
 function loop() {
   const l = state ? initial : circle;
 
-  animateNodes(graph, l, {duration: 2000}, () => {
+  animateNodes(graph, l, { duration: 2000 }, () => {
     state = !state;
     loop();
   });

@@ -9,9 +9,9 @@ import drawNode from './node';
 import drawLabel from './label';
 
 export default function drawHover(context, data, settings) {
-  const size = settings.labelSize,
-        font = settings.labelFont,
-        weight = settings.labelWeight;
+  const size = settings.labelSize;
+  const font = settings.labelFont;
+  const weight = settings.labelWeight;
 
   context.font = `${weight} ${size}px ${font}`;
 
@@ -25,11 +25,11 @@ export default function drawHover(context, data, settings) {
 
   const textWidth = context.measureText(data.label).width;
 
-  const x = Math.round(data.x - size / 2 - 2),
-        y = Math.round(data.y - size / 2 - 2),
-        w = Math.round(textWidth + size / 2 + data.size + 9),
-        h = Math.round(size + 4),
-        e = Math.round(size / 2 + 2);
+  const x = Math.round(data.x - size / 2 - 2);
+  const y = Math.round(data.y - size / 2 - 2);
+  const w = Math.round(textWidth + size / 2 + data.size + 9);
+  const h = Math.round(size + 4);
+  const e = Math.round(size / 2 + 2);
 
   context.moveTo(x, y + e);
   context.moveTo(x, y + e);
@@ -51,5 +51,5 @@ export default function drawHover(context, data, settings) {
   drawNode(context, data);
 
   // And finally we draw the label
-  drawLabel(context, data, { ...settings, labelColor: '#000'});
+  drawLabel(context, data, { ...settings, labelColor: '#000' });
 }

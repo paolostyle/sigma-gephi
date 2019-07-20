@@ -19,8 +19,8 @@ const camera = renderer.getCamera();
 const captor = renderer.getMouseCaptor();
 
 // State
-let draggedNode = null,
-    dragging = false;
+let draggedNode = null;
+let dragging = false;
 
 renderer.on('downNode', e => {
   dragging = true;
@@ -35,14 +35,10 @@ captor.on('mouseup', e => {
 });
 
 captor.on('mousemove', e => {
-
-  if (!dragging)
-    return;
+  if (!dragging) return;
 
   // Get new position of node
-  const pos = renderer.normalizationFunction.inverse(
-    camera.viewportToGraph(renderer, e.x, e.y)
-  );
+  const pos = renderer.normalizationFunction.inverse(camera.viewportToGraph(renderer, e.x, e.y));
 
   graph.setNodeAttribute(draggedNode, 'x', pos.x);
   graph.setNodeAttribute(draggedNode, 'y', pos.y);

@@ -4,11 +4,7 @@
  *
  * Class representing a single WebGL program used by sigma's WebGL renderer.
  */
-import {
-  loadVertexShader,
-  loadFragmentShader,
-  loadProgram
-} from '../shaders/utils';
+import { loadVertexShader, loadFragmentShader, loadProgram } from '../shaders/utils';
 
 /**
  * Program class.
@@ -33,10 +29,7 @@ export default class Program {
     this.vertexShader = loadVertexShader(gl, this.vertexShaderSource);
     this.fragmentShader = loadFragmentShader(gl, this.fragmentShaderSource);
 
-    this.program = loadProgram(gl, [
-      this.vertexShader,
-      this.fragmentShader
-    ]);
+    this.program = loadProgram(gl, [this.vertexShader, this.fragmentShader]);
 
     return this.program;
   }
@@ -63,6 +56,7 @@ export function createCompoundProgram(programClasses) {
     }
 
     process() {
+      // eslint-disable-next-line prefer-rest-params
       const args = arguments;
 
       this.programs.forEach(program => program.process(...args));
@@ -70,8 +64,7 @@ export function createCompoundProgram(programClasses) {
 
     computeIndices() {
       this.programs.forEach(program => {
-        if (typeof program.computeIndices === 'function')
-          program.computeIndices();
+        if (typeof program.computeIndices === 'function') program.computeIndices();
       });
     }
 
@@ -80,6 +73,7 @@ export function createCompoundProgram(programClasses) {
     }
 
     render() {
+      // eslint-disable-next-line prefer-rest-params
       const args = arguments;
 
       this.programs.forEach(program => {

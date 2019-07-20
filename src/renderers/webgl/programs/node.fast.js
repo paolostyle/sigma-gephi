@@ -7,12 +7,12 @@
  * every GPU.
  */
 import Program from './program';
-import {floatColor} from '../utils';
+import { floatColor } from '../utils';
 import vertexShaderSource from '../shaders/node.fast.vert.glsl';
 import fragmentShaderSource from '../shaders/node.fast.frag.glsl';
 
-const POINTS = 1,
-      ATTRIBUTES = 4;
+const POINTS = 1;
+const ATTRIBUTES = 4;
 
 export default class NodeProgramFast extends Program {
   constructor(gl) {
@@ -28,7 +28,7 @@ export default class NodeProgramFast extends Program {
     this.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-    const program = this.program;
+    const { program } = this;
 
     // Locations
     this.positionLocation = gl.getAttribLocation(program, 'a_position');
@@ -78,7 +78,7 @@ export default class NodeProgramFast extends Program {
 
     let i = offset * POINTS * ATTRIBUTES;
 
-    const array = this.array;
+    const { array } = this;
 
     if (data.hidden) {
       array[i++] = 0;
@@ -96,28 +96,21 @@ export default class NodeProgramFast extends Program {
   }
 
   bufferData() {
-    const gl = this.gl;
+    const { gl } = this;
 
     gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.DYNAMIC_DRAW);
   }
 
   render(params) {
-    const gl = this.gl;
+    const { gl } = this;
 
-    const program = this.program;
+    const { program } = this;
     gl.useProgram(program);
 
-    gl.uniform1f(
-      this.ratioLocation,
-      1 / Math.pow(params.ratio, params.nodesPowRatio)
-    );
+    gl.uniform1f(this.ratioLocation, 1 / Math.pow(params.ratio, params.nodesPowRatio));
     gl.uniform1f(this.scaleLocation, params.scalingRatio);
     gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
 
-    gl.drawArrays(
-      gl.POINTS,
-      0,
-      this.array.length / ATTRIBUTES
-    );
+    gl.drawArrays(gl.POINTS, 0, this.array.length / ATTRIBUTES);
   }
 }

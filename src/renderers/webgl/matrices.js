@@ -5,11 +5,7 @@
  * Matrices-related helper functions used by sigma's WebGL renderer.
  */
 export function identity() {
-  return Float32Array.of(
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1
-  );
+  return Float32Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1);
 }
 
 // TODO: optimize
@@ -21,8 +17,8 @@ export function scale(m, x, y) {
 }
 
 export function rotate(m, r) {
-  const s = Math.sin(r),
-        c = Math.cos(r);
+  const s = Math.sin(r);
+  const c = Math.cos(r);
 
   m[0] = c;
   m[1] = s;
@@ -40,13 +36,25 @@ export function translate(m, x, y) {
 }
 
 export function multiply(a, b) {
-  const a00 = a[0], a01 = a[1], a02 = a[2];
-  const a10 = a[3], a11 = a[4], a12 = a[5];
-  const a20 = a[6], a21 = a[7], a22 = a[8];
+  const a00 = a[0];
+  const a01 = a[1];
+  const a02 = a[2];
+  const a10 = a[3];
+  const a11 = a[4];
+  const a12 = a[5];
+  const a20 = a[6];
+  const a21 = a[7];
+  const a22 = a[8];
 
-  const b00 = b[0], b01 = b[1], b02 = b[2];
-  const b10 = b[3], b11 = b[4], b12 = b[5];
-  const b20 = b[6], b21 = b[7], b22 = b[8];
+  const b00 = b[0];
+  const b01 = b[1];
+  const b02 = b[2];
+  const b10 = b[3];
+  const b11 = b[4];
+  const b12 = b[5];
+  const b20 = b[6];
+  const b21 = b[7];
+  const b22 = b[8];
 
   a[0] = b00 * a00 + b01 * a10 + b02 * a20;
   a[1] = b00 * a01 + b01 * a11 + b02 * a21;

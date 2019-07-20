@@ -15,13 +15,13 @@
  * the CPU & GPU (normals are computed on the CPU side).
  */
 import Program from './program';
-import {floatColor, canUse32BitsIndices} from '../utils';
+import { floatColor, canUse32BitsIndices } from '../utils';
 import vertexShaderSource from '../shaders/edge.vert.glsl';
 import fragmentShaderSource from '../shaders/edge.frag.glsl';
 
-const POINTS = 4,
-      ATTRIBUTES = 6,
-      STRIDE = POINTS * ATTRIBUTES;
+const POINTS = 4;
+const ATTRIBUTES = 6;
+const STRIDE = POINTS * ATTRIBUTES;
 
 export default class EdgeProgram extends Program {
   constructor(gl) {
@@ -62,7 +62,7 @@ export default class EdgeProgram extends Program {
   }
 
   bind() {
-    const gl = this.gl;
+    const { gl } = this;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
@@ -73,28 +73,32 @@ export default class EdgeProgram extends Program {
     gl.enableVertexAttribArray(this.thicknessLocation);
     gl.enableVertexAttribArray(this.colorLocation);
 
-    gl.vertexAttribPointer(this.positionLocation,
+    gl.vertexAttribPointer(
+      this.positionLocation,
       2,
       gl.FLOAT,
       false,
       ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
       0
     );
-    gl.vertexAttribPointer(this.normalLocation,
+    gl.vertexAttribPointer(
+      this.normalLocation,
       2,
       gl.FLOAT,
       false,
       ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
       8
     );
-    gl.vertexAttribPointer(this.thicknessLocation,
+    gl.vertexAttribPointer(
+      this.thicknessLocation,
       1,
       gl.FLOAT,
       false,
       ATTRIBUTES * Float32Array.BYTES_PER_ELEMENT,
       16
     );
-    gl.vertexAttribPointer(this.colorLocation,
+    gl.vertexAttribPointer(
+      this.colorLocation,
       4,
       gl.UNSIGNED_BYTE,
       true,
@@ -108,28 +112,26 @@ export default class EdgeProgram extends Program {
   }
 
   process(sourceData, targetData, data, offset) {
-
     if (sourceData.hidden || targetData.hidden || data.hidden) {
-      for (let i = offset * STRIDE, l = i + STRIDE; i < l; i++)
-        this.array[i] = 0;
+      for (let i = offset * STRIDE, l = i + STRIDE; i < l; i++) this.array[i] = 0;
 
       return;
     }
 
-    const thickness = data.size || 1,
-          x1 = sourceData.x,
-          y1 = sourceData.y,
-          x2 = targetData.x,
-          y2 = targetData.y,
-          color = floatColor(data.color);
+    const thickness = data.size || 1;
+    const x1 = sourceData.x;
+    const y1 = sourceData.y;
+    const x2 = targetData.x;
+    const y2 = targetData.y;
+    const color = floatColor(data.color);
 
     // Computing normals
-    const dx = x2 - x1,
-          dy = y2 - y1;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
 
-    let len = dx * dx + dy * dy,
-        n1 = 0,
-        n2 = 0;
+    let len = dx * dx + dy * dy;
+    let n1 = 0;
+    let n2 = 0;
 
     if (len) {
       len = 1 / Math.sqrt(len);
@@ -140,7 +142,7 @@ export default class EdgeProgram extends Program {
 
     let i = POINTS * ATTRIBUTES * offset;
 
-    const array = this.array;
+    const { array } = this;
 
     // First point
     array[i++] = x1;
@@ -178,7 +180,7 @@ export default class EdgeProgram extends Program {
   computeIndices() {
     const l = this.array.length / ATTRIBUTES;
 
-    const size = l + (l / 2);
+    const size = l + l / 2;
 
     const indices = new this.IndicesArray(size);
 
@@ -195,7 +197,7 @@ export default class EdgeProgram extends Program {
   }
 
   bufferData() {
-    const gl = this.gl;
+    const { gl } = this;
 
     // Vertices data
     gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.DYNAMIC_DRAW);
@@ -205,9 +207,9 @@ export default class EdgeProgram extends Program {
   }
 
   render(params) {
-    const gl = this.gl;
+    const { gl } = this;
 
-    const program = this.program;
+    const { program } = this;
     gl.useProgram(program);
 
     // Binding uniforms
@@ -224,11 +226,6 @@ export default class EdgeProgram extends Program {
     gl.uniform1f(this.scaleLocation, params.scalingRatio);
 
     // Drawing:
-    gl.drawElements(
-      gl.TRIANGLES,
-      this.indicesArray.length,
-      this.indicesType,
-      0
-    );
+    gl.drawElements(gl.TRIANGLES, this.indicesArray.length, this.indicesType, 0);
   }
 }

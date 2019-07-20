@@ -1,6 +1,6 @@
-const webpack = require('webpack'),
-      HtmlWebpackPlugin = require('html-webpack-plugin'),
-      path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 const EXAMPLES = {
   basic: {
@@ -58,12 +58,14 @@ for (const key in EXAMPLES) {
 
   entry[key] = `./${example.id}.js`;
 
-  plugins.push(new HtmlWebpackPlugin({
-    filename: `${example.id}.html`,
-    title: `Sigma.js - ${example.title} Example`,
-    chunks: ['commons', key],
-    template: path.join(__dirname, 'templates', 'default.ejs')
-  }));
+  plugins.push(
+    new HtmlWebpackPlugin({
+      filename: `${example.id}.html`,
+      title: `Sigma.js - ${example.title} Example`,
+      chunks: ['commons', key],
+      template: path.join(__dirname, 'templates', 'default.ejs')
+    })
+  );
 }
 
 module.exports = {

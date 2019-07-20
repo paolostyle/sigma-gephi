@@ -1,28 +1,39 @@
-var path = require('path'),
-    glob = require('glob');
+const path = require('path');
+const glob = require('glob');
 
-var shaders = glob.sync(path.join(__dirname, 'src', 'renderers', 'webgl', 'shaders', '*.glsl'));
+const shaders = glob.sync(path.join(__dirname, 'src', 'renderers', 'webgl', 'shaders', '*.glsl'));
 
-var entry = {};
+const entry = {};
 
-shaders.forEach(function(p) {
+shaders.forEach(p => {
   entry[path.basename(p, '.glsl')] = p;
 });
 
 module.exports = {
   mode: 'production',
-  entry: entry,
+  entry,
   output: {
-    path: path.join(__dirname, 'renderers', 'webgl', 'shaders'),
+    path: path.join(__dirname, 'dist', 'renderers', 'webgl', 'shaders'),
     filename: '[name].glsl',
     libraryTarget: 'commonjs2'
   },
   module: {
     rules: [
       {
-        test: /\.glsl$/,
+        test: /\.vert\.glsl$/,
         exclude: /node_modules/,
-        loader: 'raw-loader'
+        loader: 'glsl-minify-loader',
+        options: {
+          shaderType: 'vertex'
+        }
+      },
+      {
+        test: /\.frag\.glsl$/,
+        exclude: /node_modules/,
+        loader: 'glsl-minify-loader',
+        options: {
+          shaderType: 'fragment'
+        }
       },
       {
         test: /\.js$/,

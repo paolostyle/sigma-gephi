@@ -1,13 +1,22 @@
-var path = require('path');
+const path = require('path');
 
-var production = !!~process.argv.indexOf('-p');
-
-var moduleConfig = {
+const moduleConfig = {
   rules: [
     {
-      test: /\.glsl$/,
+      test: /\.vert\.glsl$/,
       exclude: /node_modules/,
-      loader: 'raw-loader'
+      loader: 'glsl-minify-loader',
+      options: {
+        shaderType: 'vertex'
+      }
+    },
+    {
+      test: /\.frag\.glsl$/,
+      exclude: /node_modules/,
+      loader: 'glsl-minify-loader',
+      options: {
+        shaderType: 'fragment'
+      }
     },
     {
       test: /\.js$/,
@@ -23,22 +32,11 @@ module.exports = [
     mode: 'production',
     entry: './src/endpoint.js',
     output: {
-      filename: production ? 'sigma.min.js' : 'sigma.js',
+      filename: 'sigma.min.js',
       path: path.join(__dirname, 'build'),
       library: 'Sigma',
       libraryTarget: 'umd'
     },
     module: moduleConfig
-  },
-  {
-    name: 'sigma-graphology',
-    mode: 'production',
-    entry: './src/sigma-graphology.js',
-    output: {
-      filename: production ? 'sigma-graphology.min.js' : 'sigma-graphology.js',
-      path: path.join(__dirname, 'build')
-    },
-    module: moduleConfig
   }
 ];
-

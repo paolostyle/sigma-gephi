@@ -7,25 +7,19 @@
 import Camera from '../camera';
 import Captor from '../captor';
 
-import {
-  getX,
-  getY,
-  getCenter,
-  getWheelDelta,
-  getMouseCoords
-} from './utils';
+import { getX, getY, getCenter, getWheelDelta, getMouseCoords } from './utils';
 
 /**
  * Constants.
  */
-const DRAG_TIMEOUT = 200,
-      MOUSE_INERTIA_DURATION = 200,
-      MOUSE_INERTIA_RATIO = 3,
-      MOUSE_ZOOM_DURATION = 200,
-      ZOOMING_RATIO = 1.7,
-      DOUBLE_CLICK_TIMEOUT = 300,
-      DOUBLE_CLICK_ZOOMING_RATIO = 2.2,
-      DOUBLE_CLICK_ZOOMING_DURATION = 200;
+const DRAG_TIMEOUT = 200;
+const MOUSE_INERTIA_DURATION = 200;
+const MOUSE_INERTIA_RATIO = 3;
+const MOUSE_ZOOM_DURATION = 200;
+const ZOOMING_RATIO = 1.7;
+const DOUBLE_CLICK_TIMEOUT = 300;
+const DOUBLE_CLICK_ZOOMING_RATIO = 2.2;
+const DOUBLE_CLICK_ZOOMING_DURATION = 200;
 
 /**
  * Mouse captor class.
@@ -75,7 +69,7 @@ export default class MouseCaptor extends Captor {
   }
 
   kill() {
-    const container = this.container;
+    const { container } = this;
 
     container.removeEventListener('click', this.handleClick);
     container.removeEventListener('mousedown', this.handleDown);
@@ -88,8 +82,7 @@ export default class MouseCaptor extends Captor {
   }
 
   handleClick(e) {
-    if (!this.enabled)
-      return;
+    if (!this.enabled) return;
 
     this.clicks++;
 
@@ -108,13 +101,11 @@ export default class MouseCaptor extends Captor {
     }, DOUBLE_CLICK_TIMEOUT);
 
     // NOTE: this is here to prevent click events on drag
-    if (!this.hasDragged)
-      this.emit('click', getMouseCoords(e));
+    if (!this.hasDragged) this.emit('click', getMouseCoords(e));
   }
 
   handleDoubleClick(e) {
-    if (!this.enabled)
-      return;
+    if (!this.enabled) return;
 
     const center = getCenter(e);
 
@@ -128,8 +119,8 @@ export default class MouseCaptor extends Captor {
       height: this.container.offsetHeight
     };
 
-    const clickX = getX(e),
-          clickY = getY(e);
+    const clickX = getX(e);
+    const clickY = getY(e);
 
     // TODO: baaaad we mustn't mutate the camera, create a Camera.from or #.copy
     // TODO: factorize pan & zoomTo
@@ -138,28 +129,29 @@ export default class MouseCaptor extends Captor {
     cameraWithNewRatio.x = cameraState.x;
     cameraWithNewRatio.y = cameraState.y;
 
-    const clickGraph = this.camera.viewportToGraph(dimensions, clickX, clickY),
-          centerGraph = this.camera.viewportToGraph(dimensions, center.x, center.y);
+    const clickGraph = this.camera.viewportToGraph(dimensions, clickX, clickY);
+    const centerGraph = this.camera.viewportToGraph(dimensions, center.x, center.y);
 
-    const clickGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, clickX, clickY),
-          centerGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, center.x, center.y);
+    const clickGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, clickX, clickY);
+    const centerGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, center.x, center.y);
 
-    const deltaX = clickGraphNew.x - centerGraphNew.x - clickGraph.x + centerGraph.x,
-          deltaY = clickGraphNew.y - centerGraphNew.y - clickGraph.y + centerGraph.y;
+    const deltaX = clickGraphNew.x - centerGraphNew.x - clickGraph.x + centerGraph.x;
+    const deltaY = clickGraphNew.y - centerGraphNew.y - clickGraph.y + centerGraph.y;
 
-    this.camera.animate({
-      x: cameraState.x - deltaX,
-      y: cameraState.y - deltaY,
-      ratio: newRatio
-    }, {
-      easing: 'quadraticInOut',
-      duration: DOUBLE_CLICK_ZOOMING_DURATION
-    });
+    this.camera.animate(
+      {
+        x: cameraState.x - deltaX,
+        y: cameraState.y - deltaY,
+        ratio: newRatio
+      },
+      {
+        easing: 'quadraticInOut',
+        duration: DOUBLE_CLICK_ZOOMING_DURATION
+      }
+    );
 
-    if (e.preventDefault)
-      e.preventDefault();
-    else
-      e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    else e.returnValue = false;
 
     e.stopPropagation();
 
@@ -167,8 +159,7 @@ export default class MouseCaptor extends Captor {
   }
 
   handleDown(e) {
-    if (!this.enabled)
-      return;
+    if (!this.enabled) return;
 
     this.startCameraState = this.camera.getState();
     this.lastCameraState = this.startCameraState;
@@ -183,7 +174,6 @@ export default class MouseCaptor extends Captor {
     // TODO: dispatch events
     switch (e.which) {
       default:
-
         // Left button pressed
         this.isMouseDown = true;
         this.emit('mousedown', getMouseCoords(e));
@@ -191,8 +181,7 @@ export default class MouseCaptor extends Captor {
   }
 
   handleUp(e) {
-    if (!this.enabled || !this.isMouseDown)
-      return;
+    if (!this.enabled || !this.isMouseDown) return;
 
     this.isMouseDown = false;
 
@@ -201,22 +190,24 @@ export default class MouseCaptor extends Captor {
       clearTimeout(this.movingTimeout);
     }
 
-    const x = getX(e),
-          y = getY(e);
+    const x = getX(e);
+    const y = getY(e);
 
-    const cameraState = this.camera.getState(),
-          previousCameraState = this.camera.getPreviousState();
+    const cameraState = this.camera.getState();
+    const previousCameraState = this.camera.getPreviousState();
 
     if (this.isMoving) {
-      this.camera.animate({
-        x: cameraState.x + MOUSE_INERTIA_RATIO * (cameraState.x - previousCameraState.x),
-        y: cameraState.y + MOUSE_INERTIA_RATIO * (cameraState.y - previousCameraState.y)
-      }, {
-        duration: MOUSE_INERTIA_DURATION,
-        easing: 'quadraticOut'
-      });
-    }
-    else if (this.lastMouseX !== x || this.lastMouseY !== y) {
+      this.camera.animate(
+        {
+          x: cameraState.x + MOUSE_INERTIA_RATIO * (cameraState.x - previousCameraState.x),
+          y: cameraState.y + MOUSE_INERTIA_RATIO * (cameraState.y - previousCameraState.y)
+        },
+        {
+          duration: MOUSE_INERTIA_DURATION,
+          easing: 'quadraticOut'
+        }
+      );
+    } else if (this.lastMouseX !== x || this.lastMouseY !== y) {
       this.camera.setState({
         x: cameraState.x,
         y: cameraState.y
@@ -229,19 +220,16 @@ export default class MouseCaptor extends Captor {
   }
 
   handleMove(e) {
-    if (!this.enabled)
-      return;
+    if (!this.enabled) return;
 
     this.emit('mousemove', getMouseCoords(e));
 
     if (this.isMouseDown) {
-
       // TODO: dispatch events
       this.isMoving = true;
       this.hasDragged = true;
 
-      if (this.movingTimeout)
-        clearTimeout(this.movingTimeout);
+      if (this.movingTimeout) clearTimeout(this.movingTimeout);
 
       this.movingTimeout = setTimeout(() => {
         this.movingTimeout = null;
@@ -253,39 +241,29 @@ export default class MouseCaptor extends Captor {
         height: this.container.offsetHeight
       };
 
-      const eX = getX(e),
-            eY = getY(e);
+      const eX = getX(e);
+      const eY = getY(e);
 
-      const lastMouse = this.camera.viewportToGraph(
-        dimensions,
-        this.lastMouseX,
-        this.lastMouseY
-      );
+      const lastMouse = this.camera.viewportToGraph(dimensions, this.lastMouseX, this.lastMouseY);
 
-      const mouse = this.camera.viewportToGraph(
-        dimensions,
-        eX,
-        eY
-      );
+      const mouse = this.camera.viewportToGraph(dimensions, eX, eY);
 
-      const offsetX = lastMouse.x - mouse.x,
-            offsetY = lastMouse.y - mouse.y;
+      const offsetX = lastMouse.x - mouse.x;
+      const offsetY = lastMouse.y - mouse.y;
 
       const cameraState = this.camera.getState();
 
-      const x = cameraState.x + offsetX,
-            y = cameraState.y + offsetY;
+      const x = cameraState.x + offsetX;
+      const y = cameraState.y + offsetY;
 
-      this.camera.setState({x, y});
+      this.camera.setState({ x, y });
 
       this.lastMouseX = eX;
       this.lastMouseY = eY;
     }
 
-    if (e.preventDefault)
-      e.preventDefault();
-    else
-      e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    else e.returnValue = false;
 
     e.stopPropagation();
 
@@ -293,31 +271,23 @@ export default class MouseCaptor extends Captor {
   }
 
   handleWheel(e) {
-
-    if (e.preventDefault)
-      e.preventDefault();
-    else
-      e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    else e.returnValue = false;
 
     e.stopPropagation();
 
-    if (!this.enabled)
-      return false;
+    if (!this.enabled) return false;
 
     const delta = getWheelDelta(e);
 
-    if (!delta)
-      return false;
+    if (!delta) return false;
 
-    if (this.wheelLock)
-      return false;
+    if (this.wheelLock) return false;
 
     this.wheelLock = true;
 
     // TODO: handle max zoom
-    const ratio = delta > 0 ?
-      1 / ZOOMING_RATIO :
-      ZOOMING_RATIO;
+    const ratio = delta > 0 ? 1 / ZOOMING_RATIO : ZOOMING_RATIO;
 
     const cameraState = this.camera.getState();
 
@@ -330,8 +300,8 @@ export default class MouseCaptor extends Captor {
       height: this.container.offsetHeight
     };
 
-    const clickX = getX(e),
-          clickY = getY(e);
+    const clickX = getX(e);
+    const clickY = getY(e);
 
     // TODO: baaaad we mustn't mutate the camera, create a Camera.from or #.copy
     // TODO: factorize pan & zoomTo
@@ -340,23 +310,27 @@ export default class MouseCaptor extends Captor {
     cameraWithNewRatio.x = cameraState.x;
     cameraWithNewRatio.y = cameraState.y;
 
-    const clickGraph = this.camera.viewportToGraph(dimensions, clickX, clickY),
-          centerGraph = this.camera.viewportToGraph(dimensions, center.x, center.y);
+    const clickGraph = this.camera.viewportToGraph(dimensions, clickX, clickY);
+    const centerGraph = this.camera.viewportToGraph(dimensions, center.x, center.y);
 
-    const clickGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, clickX, clickY),
-          centerGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, center.x, center.y);
+    const clickGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, clickX, clickY);
+    const centerGraphNew = cameraWithNewRatio.viewportToGraph(dimensions, center.x, center.y);
 
-    const deltaX = clickGraphNew.x - centerGraphNew.x - clickGraph.x + centerGraph.x,
-          deltaY = clickGraphNew.y - centerGraphNew.y - clickGraph.y + centerGraph.y;
+    const deltaX = clickGraphNew.x - centerGraphNew.x - clickGraph.x + centerGraph.x;
+    const deltaY = clickGraphNew.y - centerGraphNew.y - clickGraph.y + centerGraph.y;
 
-    this.camera.animate({
-      x: cameraState.x - deltaX,
-      y: cameraState.y - deltaY,
-      ratio: newRatio
-    }, {
-      easing: 'linear',
-      duration: MOUSE_ZOOM_DURATION
-    }, () => (this.wheelLock = false));
+    this.camera.animate(
+      {
+        x: cameraState.x - deltaX,
+        y: cameraState.y - deltaY,
+        ratio: newRatio
+      },
+      {
+        easing: 'linear',
+        duration: MOUSE_ZOOM_DURATION
+      },
+      () => (this.wheelLock = false)
+    );
 
     return false;
   }

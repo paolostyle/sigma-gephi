@@ -1,13 +1,13 @@
-import {UndirectedGraph} from 'graphology';
+import { UndirectedGraph } from 'graphology';
 import randomLayout from 'graphology-layout/random';
 import forceAtlas2 from 'graphology-layout-forceatlas2';
-import {connectedComponents} from 'graphology-components';
+import { connectedComponents } from 'graphology-components';
 import louvain from 'graphology-communities-louvain';
 import WebGLRenderer from '../src/renderers/webgl';
 
 import data from './resources/toflit.json';
 
-const scale = (d) => Math.max(2, Math.log2(d) * 1.7);
+const scale = d => Math.max(2, Math.log2(d) * 1.7);
 
 document.body.innerHTML += `
   <style>
@@ -27,9 +27,9 @@ document.body.innerHTML += `
 
 const mainContainer = document.getElementById('container');
 
-const graph = new UndirectedGraph({defaultNodeAttributes: {size: 3}});
+const graph = new UndirectedGraph({ defaultNodeAttributes: { size: 3 } });
 
-data.forEach(({source, target}) => {
+data.forEach(({ source, target }) => {
   graph.mergeEdge(source, target);
 });
 
@@ -41,8 +41,7 @@ graph.nodes().forEach(node => {
 const components = connectedComponents(graph);
 
 components.forEach(component => {
-  if (component.length < 10)
-    component.forEach(node => graph.dropNode(node));
+  if (component.length < 10) component.forEach(node => graph.dropNode(node));
 });
 
 const map = louvain(graph);
@@ -51,8 +50,7 @@ let communities = {};
 for (const node in map) {
   const c = map[node];
 
-  if (!(c in communities))
-    communities[c] = new UndirectedGraph();
+  if (!(c in communities)) communities[c] = new UndirectedGraph();
 
   const h = communities[c];
 
@@ -61,8 +59,7 @@ for (const node in map) {
   graph.edges(node).forEach(edge => {
     const target = graph.opposite(node, edge);
 
-    if (node < target || map[target] !== c)
-      return;
+    if (node < target || map[target] !== c) return;
 
     h.mergeEdge(node, target);
   });

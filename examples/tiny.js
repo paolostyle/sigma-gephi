@@ -1,4 +1,4 @@
-import {UndirectedGraph} from 'graphology';
+import { UndirectedGraph } from 'graphology';
 import WebGLRenderer from '../src/renderers/webgl';
 
 const container = document.getElementById('container');

@@ -8,16 +8,16 @@
  * indicating which "corner" of the triangle to draw.
  */
 import Program from './program';
-import {floatColor} from '../utils';
+import { floatColor } from '../utils';
 import vertexShaderSource from '../shaders/node.vert.glsl';
 import fragmentShaderSource from '../shaders/node.frag.glsl';
 
-const ANGLE_1 = 0,
-      ANGLE_2 = 2 * Math.PI / 3,
-      ANGLE_3 = 4 * Math.PI / 3;
+const ANGLE_1 = 0;
+const ANGLE_2 = (2 * Math.PI) / 3;
+const ANGLE_3 = (4 * Math.PI) / 3;
 
-const POINTS = 3,
-      ATTRIBUTES = 5;
+const POINTS = 3;
+const ATTRIBUTES = 5;
 
 export default class NodeProgram extends Program {
   constructor(gl) {
@@ -87,9 +87,7 @@ export default class NodeProgram extends Program {
   }
 
   allocate(capacity) {
-    this.array = new Float32Array(
-      POINTS * ATTRIBUTES * capacity
-    );
+    this.array = new Float32Array(POINTS * ATTRIBUTES * capacity);
   }
 
   process(data, offset) {
@@ -97,7 +95,7 @@ export default class NodeProgram extends Program {
 
     let i = offset * POINTS * ATTRIBUTES;
 
-    const array = this.array;
+    const { array } = this;
 
     array[i++] = data.x;
     array[i++] = data.y;
@@ -119,30 +117,23 @@ export default class NodeProgram extends Program {
   }
 
   bufferData() {
-    const gl = this.gl;
+    const { gl } = this;
 
     gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.DYNAMIC_DRAW);
   }
 
   render(params) {
-    const gl = this.gl;
+    const { gl } = this;
 
-    const program = this.program;
+    const { program } = this;
 
     gl.useProgram(program);
 
     gl.uniform2f(this.resolutionLocation, params.width, params.height);
-    gl.uniform1f(
-      this.ratioLocation,
-      1 / Math.pow(params.ratio, params.nodesPowRatio)
-    );
+    gl.uniform1f(this.ratioLocation, 1 / Math.pow(params.ratio, params.nodesPowRatio));
     gl.uniform1f(this.scaleLocation, params.scalingRatio);
     gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
 
-    gl.drawArrays(
-      gl.TRIANGLES,
-      0,
-      this.array.length / ATTRIBUTES
-    );
+    gl.drawArrays(gl.TRIANGLES, 0, this.array.length / ATTRIBUTES);
   }
 }
