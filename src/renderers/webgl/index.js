@@ -59,6 +59,7 @@ const DEFAULT_SETTINGS = {
   // Component rendering
   defaultNodeColor: '#999',
   defaultEdgeColor: '#ccc',
+  labelColor: '#000',
   labelFont: 'Arial',
   labelSize: 14,
   labelWeight: 'normal',

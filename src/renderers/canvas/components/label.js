@@ -7,9 +7,10 @@
 export default function drawLabel(context, data, settings) {
   const size = settings.labelSize,
         font = settings.labelFont,
-        weight = settings.labelWeight;
+        weight = settings.labelWeight,
+        color = settings.labelColor;
 
-  context.fillStyle = '#000';
+  context.fillStyle = color;
   context.font = `${weight} ${size}px ${font}`;
 
   context.fillText(

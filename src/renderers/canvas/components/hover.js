@@ -51,5 +51,5 @@ export default function drawHover(context, data, settings) {
   drawNode(context, data);
 
   // And finally we draw the label
-  drawLabel(context, data, settings);
+  drawLabel(context, data, { ...settings, labelColor: '#000'});
 }
