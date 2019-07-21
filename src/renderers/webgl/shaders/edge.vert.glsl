@@ -12,7 +12,7 @@ varying vec4 v_color;
 varying vec2 v_normal;
 varying float v_thickness;
 
-const float min_thickness = 1.8;
+const float min_thickness = 1.0;
 const float bias = 255.0 / 254.0;
 
 void main() {

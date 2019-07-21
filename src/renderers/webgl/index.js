@@ -12,8 +12,8 @@ import Camera from '../../camera';
 import MouseCaptor from '../../captors/mouse';
 import QuadTree from '../../quadtree';
 import { NodeDisplayData, EdgeDisplayData } from '../display-data';
-import NodeProgram from './programs/node.fast';
-import EdgeProgram from './programs/edge';
+import NodeFastProgram from './programs/node.fast';
+import UndirectedEdgeProgram from './programs/edge';
 
 import drawLabel from '../canvas/components/label';
 import drawHover from '../canvas/components/hover';
@@ -22,7 +22,7 @@ import { assign } from '../../utils';
 
 import { createElement, getPixelRatio, createNormalizationFunction } from '../utils';
 
-import { matrixFromCamera } from './utils';
+import { matrixFromCamera, hexToRgb } from './utils';
 
 import labelsToDisplayFromGrid from '../../heuristics/labels';
 
@@ -46,6 +46,8 @@ const DEFAULT_SETTINGS = {
   // Component rendering
   defaultNodeColor: '#999',
   defaultEdgeColor: '#ccc',
+  edgeOpacity: 0.75, // works only when colorMode is target or source
+  edgeColorMode: 'own', // 'own' | 'target' | 'source'
   labelColor: '#000',
   labelFont: 'Arial',
   labelSize: 14,
@@ -54,6 +56,10 @@ const DEFAULT_SETTINGS = {
   // Reducers
   nodeReducer: null,
   edgeReducer: null,
+
+  // Programs
+  EdgeProgram: UndirectedEdgeProgram,
+  NodeProgram: NodeFastProgram,
 
   // Features
   zIndex: false
@@ -137,10 +143,10 @@ export default class WebGLRenderer extends Renderer {
 
     // Loading programs
     this.nodePrograms = {
-      def: new NodeProgram(this.contexts.nodes)
+      def: new this.settings.NodeProgram(this.contexts.nodes)
     };
     this.edgePrograms = {
-      def: new EdgeProgram(this.contexts.edges)
+      def: new this.settings.EdgeProgram(this.contexts.edges)
     };
 
     // Initial resize
@@ -488,6 +494,14 @@ export default class WebGLRenderer extends Renderer {
       const extremities = graph.extremities(edge);
       const sourceData = this.nodeDataCache[extremities[0]];
       const targetData = this.nodeDataCache[extremities[1]];
+
+      if (this.settings.edgeColorMode === 'target') {
+        displayData.assign({ color: hexToRgb(targetData.color, this.settings.edgeOpacity) });
+      }
+
+      if (this.settings.edgeColorMode === 'source') {
+        displayData.assign({ color: hexToRgb(sourceData.color, this.settings.edgeOpacity) });
+      }
 
       edgeProgram.process(sourceData, targetData, displayData, i);
 

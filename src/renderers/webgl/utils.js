@@ -53,15 +53,35 @@ export function floatColor(val) {
 
   a = (a * 255) | 0;
 
-  const bits = ((a << 24) | (b << 16) | (g << 8) | r) & 0xfeffffff;
-
-  INT32[0] = bits;
+  INT32[0] = ((a << 24) | (b << 16) | (g << 8) | r) & 0xfeffffff;
 
   const color = FLOAT32[0];
 
   FLOAT_COLOR_CACHE[val] = color;
 
   return color;
+}
+
+export function hexToRgb(val, alpha) {
+  if (/^#?([A-Fa-f0-9]{3}){1,2}$/.test(val)) {
+    val = val.replace('#', '');
+    const r = parseInt(val.length === 3 ? val.slice(0, 1).repeat(2) : val.slice(0, 2), 16);
+    const g = parseInt(val.length === 3 ? val.slice(1, 2).repeat(2) : val.slice(2, 4), 16);
+    const b = parseInt(val.length === 3 ? val.slice(2, 3).repeat(2) : val.slice(4, 6), 16);
+
+    return alpha ? `rgba(${r}, ${g}, ${b}, ${alpha})` : `rgb(${r}, ${g}, ${b})`;
+  } else if (RGBA_TEST_REGEX.test(val)) {
+    const match = val.match(RGBA_EXTRACT_REGEX);
+
+    const r = +match[1];
+    const g = +match[2];
+    const b = +match[3];
+
+    let a = alpha;
+    if (match[4]) a = +match[4];
+
+    return alpha ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
+  }
 }
 
 /**

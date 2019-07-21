@@ -3,21 +3,26 @@ const path = require('path');
 const moduleConfig = {
   rules: [
     {
-      test: /\.vert\.glsl$/,
+      test: /\.glsl$/,
       exclude: /node_modules/,
-      loader: 'glsl-minify-loader',
-      options: {
-        shaderType: 'vertex'
-      }
+      loader: 'raw-loader'
     },
-    {
-      test: /\.frag\.glsl$/,
-      exclude: /node_modules/,
-      loader: 'glsl-minify-loader',
-      options: {
-        shaderType: 'fragment'
-      }
-    },
+    // {
+    //   test: /\.vert\.glsl$/,
+    //   exclude: /node_modules/,
+    //   loader: 'glsl-minify-loader',
+    //   options: {
+    //     shaderType: 'vertex'
+    //   }
+    // },
+    // {
+    //   test: /\.frag\.glsl$/,
+    //   exclude: /node_modules/,
+    //   loader: 'glsl-minify-loader',
+    //   options: {
+    //     shaderType: 'fragment'
+    //   }
+    // },
     {
       test: /\.js$/,
       exclude: /node_modules/,
