@@ -1,5 +1,5 @@
 import { UndirectedGraph } from 'graphology';
-import WebGLRenderer from '../src/renderers/webgl';
+import { WebGLRenderer } from '../dist/index.es';
 
 const container = document.getElementById('container');
 

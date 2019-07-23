@@ -3,7 +3,7 @@ import clusters from 'graphology-generators/random/clusters';
 import randomLayout from 'graphology-layout/random';
 import FA2Layout from 'graphology-layout-forceatlas2/worker';
 import faker from 'faker';
-import WebGLRenderer from '../src/renderers/webgl';
+import { WebGLRenderer } from '../dist/index.es';
 
 const PALETTE = ['#b4943e', '#777acd', '#60a862', '#c45ca2', '#cb5a4c'];
 

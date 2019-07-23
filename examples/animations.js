@@ -2,8 +2,7 @@ import { UndirectedGraph } from 'graphology';
 import circularLayout from 'graphology-layout/circular';
 import { scaleLinear } from 'd3-scale';
 import extent from 'simple-statistics/src/extent';
-import animateNodes from '../src/animate';
-import WebGLRenderer from '../src/renderers/webgl';
+import { animateNodes, WebGLRenderer } from '../dist/index.es';
 import miserables from './resources/les-miserables.json';
 
 const nodeSizeExtent = extent(miserables.nodes.map(n => n.size));

@@ -3,7 +3,7 @@ import randomLayout from 'graphology-layout/random';
 import forceAtlas2 from 'graphology-layout-forceatlas2';
 import { connectedComponents } from 'graphology-components';
 import louvain from 'graphology-communities-louvain';
-import WebGLRenderer from '../src/renderers/webgl';
+import { WebGLRenderer } from '../dist/index.es';
 
 import data from './resources/toflit.json';
 

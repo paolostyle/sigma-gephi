@@ -1,6 +1,6 @@
 import Graph from 'graphology';
 import gexf from 'graphology-gexf/browser';
-import WebGLRenderer from '../src/renderers/webgl';
+import { WebGLRenderer } from '../dist/index.es';
 
 import arctic from './resources/graph.gexf';
 
